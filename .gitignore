@@ -12,3 +12,5 @@ ngrok.exe
 
 # Secrets
 .env
+
+*.zip
