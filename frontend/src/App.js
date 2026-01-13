@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AnalystDashboard from "./pages/AnalystDashboard"; 
 import AdminPanel from "./pages/AdminPanel"; 
+import AlertsPage from "./pages/AlertsPage"; // ✅ 1. IMPORT THIS
 
 export default function App() {
   return (
@@ -19,26 +20,23 @@ export default function App() {
       <Navbar />
       <div className="app-container">
         <Routes>
-          {/* ✅ CHANGE 1: Login is now the default ("/") path */}
+          {/* Login & Auth */}
           <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-          {/* ✅ CHANGE 2: Dashboard is moved to "/dashboard" */}
+          {/* Core App */}
           <Route path="/dashboard" element={<Dashboard />} />
-          
-          {/* Map & Tracking */}
           <Route path="/map" element={<MapView />} />
           <Route path="/search" element={<VesselSearch />} />
           <Route path="/ship/:id" element={<ShipDetails />} />
           <Route path="/playback" element={<VoyageReplay />} />
           
-          {/* Authentication */}
-          {/* You can keep /login as an alias if you want, or remove it since "/" is now login */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* ✅ 2. ADD THIS ROUTE */}
+          <Route path="/alerts" element={<AlertsPage />} />
 
-          {/* Analyst Hub */}
+          {/* Role-Based Dashboards */}
           <Route path="/analyst" element={<AnalystDashboard />} />
-          
           <Route path="/admin-panel" element={<AdminPanel />} />
           
         </Routes>

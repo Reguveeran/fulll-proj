@@ -237,3 +237,19 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.type or 'Notification'}"
+
+
+class Alert(models.Model):
+    vessel_name = models.CharField(max_length=100)
+    type = models.CharField(max_length=50)  # e.g., "Risk Zone", "Congestion"
+    message = models.TextField()
+    severity = models.CharField(max_length=20, choices=[
+        ('critical', 'Critical'), 
+        ('warning', 'Warning'), 
+        ('info', 'Info')
+    ])
+    status = models.CharField(max_length=20, default='New') # New, Ack, Resolved
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.vessel_name} - {self.type}"

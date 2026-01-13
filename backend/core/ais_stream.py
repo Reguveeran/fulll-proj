@@ -6,26 +6,22 @@ import sys
 import django
 from asgiref.sync import sync_to_async
 from django.utils import timezone
-
-# Django setup
+from core.models import Vessel, VoyageTrack 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 django.setup()
 
 from core.models import Vessel
 
-# ==============================
-# CONFIG
-# ==============================
-API_KEY = "fdc4a66852d00d880ef8565286774912c0d0c625"
-BOUNDING_BOX = [[[-90, -180], [90, 180]]]  # whole world
 
-# ==============================
-# DB UPDATE FUNCTION
-# ==============================
+API_KEY = "fdc4a66852d00d880ef8565286774912c0d0c625"
+BOUNDING_BOX = [[[-90, -180], [90, 180]]] 
+
+
 @sync_to_async
 def update_vessel_in_db(mmsi, ship_name, lat, lon, speed, course):
     try:
+        
         vessel, created = Vessel.objects.get_or_create(
             mmsi=str(mmsi),
             defaults={
@@ -47,6 +43,16 @@ def update_vessel_in_db(mmsi, ship_name, lat, lon, speed, course):
             vessel.last_update = timezone.now()
             vessel.save()
 
+        
+        VoyageTrack.objects.create(
+            vessel=vessel,
+            latitude=lat,
+            longitude=lon,
+            speed=speed,
+            course=course,
+            timestamp=timezone.now()
+        )
+
         return True
 
     except Exception as e:
@@ -54,9 +60,6 @@ def update_vessel_in_db(mmsi, ship_name, lat, lon, speed, course):
         return False
 
 
-# ==============================
-# AIS STREAM
-# ==============================
 async def connect_ais_stream():
     async with websockets.connect("wss://stream.aisstream.io/v0/stream") as websocket:
         await websocket.send(json.dumps({
@@ -77,7 +80,7 @@ async def connect_ais_stream():
                 ais = message["Message"]["PositionReport"]
                 meta = message.get("MetaData", {})
 
-                # ✅ SAFE extraction
+                
                 mmsi = ais.get("MMSI")
                 lat = ais.get("Latitude")
                 lon = ais.get("Longitude")
@@ -85,7 +88,7 @@ async def connect_ais_stream():
                 course = ais.get("Cog", 0)
                 ship_name = meta.get("ShipName", "").strip()
 
-                # ❗ skip invalid data
+               
                 if not mmsi or lat is None or lon is None:
                     continue
 
@@ -102,9 +105,7 @@ async def connect_ais_stream():
             except Exception as e:
                 print(f"⚠️ Stream Error: {e}")
 
-# ==============================
-# ENTRY POINT
-# ==============================
+
 if __name__ == "__main__":
     try:
         asyncio.run(connect_ais_stream())

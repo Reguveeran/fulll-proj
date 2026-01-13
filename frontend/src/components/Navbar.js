@@ -1,26 +1,23 @@
 import React from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom"; // 1. Import useLocation
+import { NavLink, useNavigate, useLocation } from "react-router-dom"; 
 import "./Navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation(); // 2. Get current path
+  const location = useLocation(); 
   
-  // ✅ Get the role
   const rawRole = localStorage.getItem("userRole");
   const userRole = rawRole ? rawRole.toLowerCase() : "";
   
   const isLoggedIn = !!localStorage.getItem("access_token");
 
-  // 3. HIDE NAVBAR on Login/Register pages
-  // We don't want to see the menu when we are trying to log in.
   if (location.pathname === "/" || location.pathname === "/login" || location.pathname === "/register") {
     return null;
   }
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/"); // Redirect to Login (which is now "/")
+    navigate("/"); 
   };
 
   return (
@@ -31,19 +28,20 @@ export default function Navbar() {
       </div>
 
       <div className="navbar__links">
-        {/* 4. CHANGED: Points to /dashboard now */}
         <NavLink to="/dashboard">Dashboard</NavLink>
-        
         <NavLink to="/map">Map</NavLink>
         <NavLink to="/search">Vessels</NavLink>
+        
+        {/* ✅ ALERTS is now beside VOYAGE REPLAY */}
         <NavLink to="/playback">Voyage Replay</NavLink>
+        <NavLink to="/alerts">Alerts</NavLink>
 
-        {/* ✅ SHOW FOR ANALYSTS */}
+        {/* SHOW FOR ANALYSTS */}
         {userRole === "analyst" && (
           <NavLink to="/analyst" className="special-link">Analyst Hub</NavLink>
         )}
 
-        {/* ✅ SHOW FOR ADMINS */}
+        {/* SHOW FOR ADMINS */}
         {userRole === "admin" && (
            <NavLink to="/admin-panel" className="nav-link-admin">Admin Control</NavLink>
         )}
@@ -52,7 +50,6 @@ export default function Navbar() {
           <button onClick={handleLogout} className="logout-btn">Logout</button>
         ) : (
           <>
-            {/* These links are technically hidden by step 3, but good to keep as backup */}
             <NavLink to="/">Login</NavLink>
             <NavLink to="/register">Register</NavLink>
           </>

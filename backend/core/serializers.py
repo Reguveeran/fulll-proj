@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import (
     User, AppUser, Vessel, Port,
-    Voyage, VoyageTrack, Event, Notification, RiskZone
+    Voyage, VoyageTrack, Event, Notification, RiskZone,Alert
 )
 
 # -------------------------
@@ -89,4 +89,9 @@ class EventSerializer(serializers.ModelSerializer):
 class RiskZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskZone
+        fields = '__all__'
+
+class AlertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Alert
         fields = '__all__'
