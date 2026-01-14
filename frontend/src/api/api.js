@@ -1,8 +1,10 @@
 // src/api/api.js
 
 // ✅ CONFIGURATION (Only declare this once!)
-const API_BASE = "https://celestina-raffish-nayeli.ngrok-free.dev/api";
-// If using ngrok, swap the line above with your ngrok URL.
+// Use an environment variable so deployments (e.g. Vercel) can point to the correct backend.
+// In Vercel, set REACT_APP_API_BASE_URL to something like "https://your-backend-domain.com/api".
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
 
 const getHeaders = () => {
   return {

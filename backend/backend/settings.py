@@ -1,25 +1,38 @@
 from pathlib import Path
+import os
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-p6065abpan9kaiy0l6qdna^_!&8@ck3ya13(2&btm+1*c7nsj&'
-DEBUG = True
+# SECURITY: read from environment in production, fall back to current key for local dev
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-p6065abpan9kaiy0l6qdna^_!&8@ck3ya13(2&btm+1*c7nsj&",
+)
 
-# ✅ 1. Ngrok Configuration 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '.ngrok-free.dev', 
-    '.ngrok-free.app',  
+# DEBUG should be False in production; controlled via env
+DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
+
+# ✅ Host configuration (for deployment, override via DJANGO_ALLOWED_HOSTS)
+DEFAULT_ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".ngrok-free.dev",
+    ".ngrok-free.app",
 ]
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS", ",".join(DEFAULT_ALLOWED_HOSTS)
+).split(",")
 
 
-CSRF_TRUSTED_ORIGINS = [
+# CSRF trusted origins (override via DJANGO_CSRF_TRUSTED_ORIGINS in production)
+DEFAULT_CSRF_TRUSTED = [
     "https://*.ngrok-free.app",
     "https://*.ngrok-free.dev",
-    # "https://bbbb-33-44.ngrok-free.app", 
 ]
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "DJANGO_CSRF_TRUSTED_ORIGINS", ",".join(DEFAULT_CSRF_TRUSTED)
+).split(",")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -98,16 +111,21 @@ REST_FRAMEWORK = {
 }
 
 
-from corsheaders.defaults import default_headers  
-CORS_ALLOW_ALL_ORIGINS = True
+from corsheaders.defaults import default_headers  # noqa: E402
 
-CORS_ALLOWED_ORIGINS = [
+# In development we can allow all, in production we rely on CORS_ALLOWED_ORIGINS
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+
+DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://*.ngrok-free.app",
-    "https://*.ngrok-free.dev",
 ]
 
+# For production, set DJANGO_CORS_ALLOWED_ORIGINS to a comma-separated list of
+# frontend origins (e.g. https://your-vercel-app.vercel.app)
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "DJANGO_CORS_ALLOWED_ORIGINS", ",".join(DEFAULT_CORS_ORIGINS)
+).split(",")
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "ngrok-skip-browser-warning",
