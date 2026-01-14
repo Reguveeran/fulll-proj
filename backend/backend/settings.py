@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import dj_database_url
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,18 +77,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+# Database: use DATABASE_URL in production (e.g. Render Postgres),
+# fall back to local MySQL for development.
+DEFAULT_DB_URL = "mysql://root:Swetha1*@localhost:3306/maritime_db"
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'maritime_db',
-        'USER': 'root',
-        'PASSWORD': 'Swetha1*',   
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL", DEFAULT_DB_URL),
+        conn_max_age=600,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -101,7 +98,9 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-STATIC_URL = 'static/'
+
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 AUTH_USER_MODEL = 'core.User'
 
 REST_FRAMEWORK = {
