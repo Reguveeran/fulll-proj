@@ -20,6 +20,7 @@ DEFAULT_ALLOWED_HOSTS = [
     "127.0.0.1",
     ".ngrok-free.dev",
     ".ngrok-free.app",
+    ".onrender.com",  # cover Render default domains
 ]
 ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS", ",".join(DEFAULT_ALLOWED_HOSTS)
@@ -30,6 +31,7 @@ ALLOWED_HOSTS = os.environ.get(
 DEFAULT_CSRF_TRUSTED = [
     "https://*.ngrok-free.app",
     "https://*.ngrok-free.dev",
+    "https://*.onrender.com",
 ]
 CSRF_TRUSTED_ORIGINS = os.environ.get(
     "DJANGO_CSRF_TRUSTED_ORIGINS", ",".join(DEFAULT_CSRF_TRUSTED)
