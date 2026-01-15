@@ -25,7 +25,10 @@ async function fetchJsonWithRetry(url, options, retries = 1, delay = 1500) {
         return fetchJsonWithRetry(url, options, retries - 1, delay);
       }
       const data = ct.includes("application/json") ? await res.json() : { detail: await res.text() };
-      throw { status: res.status, data };
+      const error = new Error(data?.detail || `HTTP ${res.status}`);
+      error.status = res.status;
+      error.data = data;
+      throw error;
     }
     return ct.includes("application/json") ? await res.json() : await res.text();
   } catch (e) {
@@ -33,7 +36,10 @@ async function fetchJsonWithRetry(url, options, retries = 1, delay = 1500) {
       await sleep(delay);
       return fetchJsonWithRetry(url, options, retries - 1, delay);
     }
-    throw e;
+    if (e instanceof Error) throw e;
+    const error = new Error("Network error");
+    error.data = e;
+    throw error;
   }
 }
 
