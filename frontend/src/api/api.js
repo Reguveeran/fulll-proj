@@ -13,6 +13,30 @@ const getHeaders = () => {
   };
 };
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function fetchJsonWithRetry(url, options, retries = 1, delay = 1500) {
+  try {
+    const res = await fetch(url, options);
+    const ct = res.headers.get("content-type") || "";
+    if (!res.ok) {
+      if (retries > 0 && (res.status === 502 || res.status === 503 || res.status === 504)) {
+        await sleep(delay);
+        return fetchJsonWithRetry(url, options, retries - 1, delay);
+      }
+      const data = ct.includes("application/json") ? await res.json() : { detail: await res.text() };
+      throw { status: res.status, data };
+    }
+    return ct.includes("application/json") ? await res.json() : await res.text();
+  } catch (e) {
+    if (retries > 0) {
+      await sleep(delay);
+      return fetchJsonWithRetry(url, options, retries - 1, delay);
+    }
+    throw e;
+  }
+}
+
 // --- DATA FETCHING ---
 
 export async function fetchLiveVessels() {
@@ -73,12 +97,21 @@ export async function fetchAuditLogs() {
 // --- AUTH & ACTIONS ---
 
 export async function loginUser(credentials) {
-    const res = await fetch(`${API_BASE}/login/`, {
+  try {
+    return await fetchJsonWithRetry(
+      `${API_BASE}/login/`,
+      {
         method: "POST",
         headers: getHeaders(),
-        body: JSON.stringify(credentials)
-    });
-    return res.json();
+        body: JSON.stringify(credentials),
+      },
+      1,
+      1500
+    );
+  } catch (err) {
+    if (err && err.data) return err.data;
+    return { detail: "Network error" };
+  }
 }
 
 export async function deleteUser(userId) {
