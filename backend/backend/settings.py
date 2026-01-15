@@ -1,48 +1,46 @@
 from pathlib import Path
 import os
 import dj_database_url
+from corsheaders.defaults import default_headers
+
+# ==================================================
+# BASE
+# ==================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --------------------------------------------------
+# ==================================================
 # SECURITY
-# --------------------------------------------------
+# ==================================================
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "unsafe-dev-key")
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
-# --------------------------------------------------
-# HOSTS & CSRF (NO NGROK)
-# --------------------------------------------------
+# ==================================================
+# HOSTS
+# ==================================================
 
-DEFAULT_ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    ".onrender.com",
-]
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1,.onrender.com"
+).split(",")
 
-ALLOWED_HOSTS = [
-    h for h in os.environ.get(
-        "DJANGO_ALLOWED_HOSTS", ",".join(DEFAULT_ALLOWED_HOSTS)
-    ).split(",") if h
-]
+# ==================================================
+# CSRF (VERCEL + RENDER)
+# ==================================================
 
-DEFAULT_CSRF_TRUSTED = [
-    "https://*.onrender.com",
-    "https://maritimelivetracking-git-main-reguveerans-projects.vercel.app",
-    "https://*.vercel.app",
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    "https://*.onrender.com,"
+    "https://*.vercel.app,"
+    "https://maritimelivetracking-git-main-reguveerans-projects.vercel.app,"
+    "https://maritimevesseltracking-r5bcq7cyx-reguveerans-projects.vercel.app"
+).split(",")
 
-CSRF_TRUSTED_ORIGINS = [
-    o for o in os.environ.get(
-        "DJANGO_CSRF_TRUSTED_ORIGINS", ",".join(DEFAULT_CSRF_TRUSTED)
-    ).split(",") if o
-]
-
-# --------------------------------------------------
+# ==================================================
 # APPLICATIONS
-# --------------------------------------------------
+# ==================================================
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,9 +56,9 @@ INSTALLED_APPS = [
     "core",
 ]
 
-# --------------------------------------------------
+# ==================================================
 # MIDDLEWARE
-# --------------------------------------------------
+# ==================================================
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -73,11 +71,16 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "backend.urls"
+# ==================================================
+# URLS / WSGI
+# ==================================================
 
-# --------------------------------------------------
+ROOT_URLCONF = "backend.urls"
+WSGI_APPLICATION = "backend.wsgi.application"
+
+# ==================================================
 # TEMPLATES
-# --------------------------------------------------
+# ==================================================
 
 TEMPLATES = [
     {
@@ -94,11 +97,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "backend.wsgi.application"
-
-# --------------------------------------------------
-# DATABASE (POSTGRESQL - RENDER)
-# --------------------------------------------------
+# ==================================================
+# DATABASE (RENDER POSTGRES)
+# ==================================================
 
 DATABASES = {
     "default": dj_database_url.config(
@@ -108,9 +109,9 @@ DATABASES = {
     )
 }
 
-# --------------------------------------------------
-# AUTH & PASSWORDS
-# --------------------------------------------------
+# ==================================================
+# AUTH
+# ==================================================
 
 AUTH_USER_MODEL = "core.User"
 
@@ -121,27 +122,27 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# --------------------------------------------------
+# ==================================================
 # INTERNATIONALIZATION
-# --------------------------------------------------
+# ==================================================
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# --------------------------------------------------
+# ==================================================
 # STATIC FILES
-# --------------------------------------------------
+# ==================================================
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# --------------------------------------------------
+# ==================================================
 # DJANGO REST FRAMEWORK (JWT)
-# --------------------------------------------------
+# ==================================================
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
@@ -155,31 +156,28 @@ REST_FRAMEWORK = {
     ],
 }
 
-# --------------------------------------------------
-# CORS (REACT / FRONTEND)
-# --------------------------------------------------
+# ==================================================
+# CORS (REACT / VERCEL)
+# ==================================================
 
-CORS_ALLOW_ALL_ORIGINS = DEBUG
-
-DEFAULT_CORS_ORIGINS = [
-    "http://localhost:3000",
-    "https://maritimelivetracking-git-main-reguveerans-projects.vercel.app",
-    "https://maritimevesseltracking-r5bcq7cyx-reguveerans-projects.vercel.app",
-]
+CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = os.environ.get(
-    "DJANGO_CORS_ALLOWED_ORIGINS", ",".join(DEFAULT_CORS_ORIGINS)
+    "DJANGO_CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,"
+    "https://maritimelivetracking-git-main-reguveerans-projects.vercel.app,"
+    "https://maritimevesseltracking-r5bcq7cyx-reguveerans-projects.vercel.app"
 ).split(",")
 
-from corsheaders.defaults import default_headers
-CORS_ALLOW_HEADERS = list(default_headers)
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.vercel\.app$",
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "authorization",  # 🔥 FIXED
 ]
 
-# --------------------------------------------------
+CORS_ALLOW_CREDENTIALS = True
+
+# ==================================================
 # PRODUCTION SECURITY (RENDER)
-# --------------------------------------------------
+# ==================================================
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
