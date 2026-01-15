@@ -8,8 +8,7 @@ export const API_BASE =
 
 const getHeaders = () => {
   return {
-    "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "true", 
+    "Content-Type": "application/json"
   };
 };
 
