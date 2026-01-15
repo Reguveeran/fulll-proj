@@ -3,8 +3,8 @@
 // ✅ CONFIGURATION (Only declare this once!)
 // Use an environment variable so deployments (e.g. Vercel) can point to the correct backend.
 // In Vercel, set REACT_APP_API_BASE_URL to something like "https://your-backend-domain.com/api".
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
+export const API_BASE =
+  process.env.REACT_APP_API_BASE_URL || "https://maritimevesseltracking.onrender.com/api";
 
 const getHeaders = () => {
   return {

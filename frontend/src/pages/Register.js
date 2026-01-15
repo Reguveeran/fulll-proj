@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../api/api";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -25,8 +26,7 @@ const Register = () => {
     }
 
     try {
-      // ✅ Sending the 'role' to the backend
-      const response = await fetch("http://127.0.0.1:8000/api/register/", {
+      const response = await fetch(`${API_BASE}/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -16,6 +16,7 @@ import {
 } from "chart.js";
 import Loader from "../components/Loader";
 import "./AnalystDashboard.css"; 
+import { API_BASE } from "../api/api";
 
 // Register ChartJS components
 ChartJS.register(
@@ -80,18 +81,17 @@ export default function AnalystDashboard() {
 
   const fetchAnalytics = () => {
     setLoading(true);
-    const BASE_URL = "https://celestina-raffish-nayeli.ngrok-free.dev"; 
-    const url = `${BASE_URL}/api/analytics/?days=${selectedDays}&type=${selectedType}&region=${selectedRegion}`;
-    
+    const url = `${API_BASE}/analytics/?days=${selectedDays}&type=${selectedType}&region=${selectedRegion}`;
+
     fetch(url, {
-        headers: {
-            "ngrok-skip-browser-warning": "true",
-            "Content-Type": "application/json"
-        }
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
     })
-      .then(res => {
-          if (!res.ok) throw new Error("Server error");
-          return res.json();
+      .then((res) => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
       })
       .then(setData)
       .catch(console.error)

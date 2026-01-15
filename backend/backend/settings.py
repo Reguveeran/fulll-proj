@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
 
 DEFAULT_CSRF_TRUSTED = [
     "https://*.onrender.com",
+    "https://maritimelivetracking-git-main-reguveerans-projects.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -161,6 +162,7 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
+    "https://maritimelivetracking-git-main-reguveerans-projects.vercel.app",
 ]
 
 CORS_ALLOWED_ORIGINS = os.environ.get(

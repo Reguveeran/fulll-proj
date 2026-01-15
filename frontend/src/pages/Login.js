@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { loginUser } from "../api/api";
 
 export default function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -18,40 +18,23 @@ export default function Login() {
     setError("");
 
     try {
-      // ✅ CHANGED: Using your public Ngrok Backend URL
-      // We also added headers to bypass the Ngrok warning page
-      const res = await axios.post(
-        "https://celestina-raffish-nayeli.ngrok-free.dev/api/login/",
-        {
-          username: form.username,
-          password: form.password
-        },
-        {
-          headers: {
-            "ngrok-skip-browser-warning": "true",
-            "Content-Type": "application/json"
-          }
-        }
-      );
+      const res = await loginUser({
+        username: form.username,
+        password: form.password,
+      });
 
-      // ✅ 2. On Success, store Token AND Role
-      localStorage.setItem("access_token", res.data.access);
-      localStorage.setItem("refresh_token", res.data.refresh);
-      localStorage.setItem("userRole", res.data.role); 
-      localStorage.setItem("username", res.data.username);
-
-      // 3. Redirect to Dashboard
-      navigate("/dashboard");
-      
+      if (res.access && res.refresh) {
+        localStorage.setItem("access_token", res.access);
+        localStorage.setItem("refresh_token", res.refresh);
+        if (res.role) localStorage.setItem("userRole", res.role);
+        if (res.username) localStorage.setItem("username", res.username);
+        navigate("/dashboard");
+      } else {
+        setError(res.detail || "Login failed. Please check your credentials.");
+      }
     } catch (err) {
       console.error(err);
-      if (err.response?.status === 401) {
-        setError("Invalid username or password.");
-      } else if (err.response?.data?.detail) {
-        setError(err.response.data.detail); 
-      } else {
-        setError("Login failed. Please check your connection.");
-      }
+      setError("Login failed. Please check your connection.");
     } finally {
       setLoading(false);
     }
